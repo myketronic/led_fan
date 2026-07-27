@@ -12,8 +12,8 @@ offset H + N * S       zeroes trailer (100000 bytes)
 So the total file size = H + N * (P + 1600) + 100000
 
 ## The Preamble
-The preamble begins with a two-byte magic value for a profile.  
-* **NOTE** the "EE31" magic vlue is shared by "F1", "F4", and also "F5".
+The preamble begins with a two-byte magic value.  
+* **NOTE** the "EE31" magic value is shared by "F1", "F4", and also "F5".
 
 The remaining bytes show a structure, some kind of XOR-based pattern that doesn't seem to relate to the content of the image.  
 
@@ -57,7 +57,9 @@ Visual payload             3,120 x 44 = 137,280 bytes
 
 ## Sampling geometry, Polar
 
-The F1 format samples a 232x232 Cartesian images into 520 angular lines, clockwise.  Angle "0" points to the right.  In each angular line, the samples run from the *outer edge* toward the center.
+The F1 format samples a 232x232 Cartesian image into 520 angular lines.  Angle "0" points to the right.  In each angular line, the samples run from the *outer edge* toward the center.
+* **NOTE** With ordinary mathematical Y-up coordinates, the negative angle is clockwise. With raster Y-down coordinates used by the implementation, increasing angle_index moves from the right toward the top of the image—visually counterclockwise. The equation below is authoritative.
+
 ```
 center_x = center_y = 115.65
 for angle_index i = 0 .. 519:
@@ -98,9 +100,10 @@ for angle_index in range(520):
 
 ## The fun part: F1 color encoding
 
-You don't want to just convert an 8-bit source with a simple linear shift: this creates severe posterization.  The Windows converter applies an 8-bit to 6-bit tone LUT.  The LUT effect: shadows are heavily compressed, conventional midtones range is compressed, then the curve rises above linear only the mid-high region (ex.: 192 maps to 56 vs 47 linearly)
+You don't want to just convert an 8-bit source with a simple linear shift: this creates severe posterization.  The Windows converter applies an 8-bit to 6-bit tone LUT.  The LUT effect: shadows are heavily compressed, conventional midtones range is compressed, then the curve rises above linear only the mid-high region (ex.: 192 maps to 56 vs 47 linearly).  FYI, highlights flatten toward 63.
 
-The complete LUT:
+The table below is a compatibility LUT that was reconstructed from solid images and color ramps.  While it does produce an excellent output display, the tested high-color payload was not reproduced byte-for-byte: 41192 of 137280 bytes differed.  Windows might do dithering, or resampling, or other fun stuff.
+
 ```
 Input +0  +1  +2  +3  +4  +5  +6  +7
 00    00  00  00  00  00  00  00  00
@@ -167,7 +170,7 @@ file size = 100992 + 138880*N bytes
 
 approximately 1234489 bytes/second (1.18 MiB/second)
 
-* "Wait, 80/9 fps?"  Yes.  More on that in a bit.
+* "Wait, 80/9 fps?"  Yes. It's a nominal rate that was inferred from factory-supplied samples, and not from any metadata stored in the file.  There's no guaranteed hardware rate.  More on this later.
 
 ## Sound and the 1,600-byte auxiliary block
 Windows-generated silent video and the factory-provided "rose" animation fill this region with zeros. The factory-provided "Countdown+ T-rex" file fills it with a waveform centered near hexadecimal 80, consistent with unsigned 8-bit mono PCM.
