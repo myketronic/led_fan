@@ -3,13 +3,15 @@
 The Windows program from the SD card offers 11 profiles in the UI: F1, F2, F3, F4, F5, F-360A, F-360B, F-360C, F-Mini11, F-Mini18, F-Mini20.
 
 This table outlines the format differences and the magic number associated with each format.
+
+**REMINDER** only F1 geometry has been implementation- and display-verified. The non-F1 radial/canvas values are strong structural inferences from payload and all-white record patterns.
 ```
 Profile	    Magic	    Frame payload  Radial resolution
 F1	        EE31	    137280         116 → 232 px
 F2	        EE32	    168480         144 → 288 px
 F3	        EE33	    234000         200 → 400 px
-F4	        EE31	    175500         150 → 300 px
-F5	        EE31	    156000         approx. 132 → 264 px
+F4	        EE31	    175500         171 → likely 342 px
+F5	        EE31	    156000         133 → likely 266 px
 F-360A	    EE35	    93600          80 → 160 px
 F-360B	    EE36	    168480         144 → 288 px
 F-360C	    EE38	    234000         200 → 400 px
